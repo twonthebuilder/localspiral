@@ -47,6 +47,27 @@ http://localhost:5000
 
 You can test `/chat`, `/spiral`, `/map`, and `/reset` routes directly from the UI.
 
+### Local development and session safety
+
+`python -m localspiral.main` now listens on `127.0.0.1:5000` with Flask's
+interactive debugger **disabled**. This prototype has no authentication and is
+not intended for LAN exposure, public hosting, or production use. Loopback
+binding is not an authorization boundary against other software running on the
+same computer.
+
+Flask stores game state in signed client-side session cookies. Each new app
+process generates a fresh, unpredictable signing key; **restarting the server
+invalidates existing sessions and resets in-browser game progress**. The key
+is not written to the repository or a configuration file. This is a deliberate
+local-prototype trade-off, not a persistent-session solution.
+
+Run the repository's stub-backed tests with `python -m pytest -q`. The new
+server-default regression tests check the configured binding, debug flag, and
+key uniqueness. They do **not** verify real Flask cookie signing, browser
+behavior, or actual network reachability. Those require a separate integration
+check before any deployment.
+
+
 ---
 
 ## Repository Layout
