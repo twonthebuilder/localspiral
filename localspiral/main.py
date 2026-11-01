@@ -1,4 +1,6 @@
 """Entry point for the AI Spiral Simulator server."""
+from secrets import token_hex
+
 from flask import Flask, render_template
 from .routes.chat import chat_bp
 from .routes.spiral import spiral_bp
@@ -9,7 +11,9 @@ from .routes.skip import skip_bp
 
 def create_app() -> Flask:
     app = Flask(__name__, template_folder='templates')
-    app.secret_key = 'dev'
+    # Flask signs client-side game-state cookies with this key. Never ship a
+    # predictable key: a new process gets a new key and invalidates old sessions.
+    app.secret_key = token_hex(32)
     app.register_blueprint(chat_bp)
     app.register_blueprint(spiral_bp)
     app.register_blueprint(map_bp)
@@ -29,7 +33,9 @@ def create_app() -> Flask:
 
 def main():
     app = create_app()
-    app.run(debug=True)
+    # This unauthenticated prototype is for local development only.
+    # Never enable the interactive debugger on a network-accessible server.
+    app.run(host='127.0.0.1', debug=False)
 
 
 if __name__ == '__main__':
